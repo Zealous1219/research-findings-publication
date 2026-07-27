@@ -1,5 +1,22 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
+import { readdirSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const briefingDirectory = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '..',
+  'a-share-briefings'
+)
+
+const briefingSidebarItems = readdirSync(briefingDirectory)
+  .filter((file) => /^\d{4}-\d{2}-\d{2}\.md$/.test(file))
+  .sort((left, right) => right.localeCompare(left))
+  .map((file) => {
+    const date = file.replace(/\.md$/, '')
+    return { text: date, link: `/a-share-briefings/${date}` }
+  })
 
 export default withMermaid(
   defineConfig({
@@ -19,7 +36,7 @@ export default withMermaid(
             text: 'A 股收盘简报',
             items: [
               { text: '归档', link: '/a-share-briefings/' },
-              { text: '2026-07-27', link: '/a-share-briefings/2026-07-27' }
+              ...briefingSidebarItems
             ]
           }
         ]
