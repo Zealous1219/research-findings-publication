@@ -28,6 +28,7 @@ export default withMermaid(
       nav: [
         { text: '首页', link: '/' },
         { text: 'A 股收盘简报', link: '/a-share-briefings/' },
+        { text: '股票池盯盘看板', link: '/stock-pool-dashboard/' },
         { text: '说明', link: '/about' }
       ],
       sidebar: {
@@ -37,6 +38,15 @@ export default withMermaid(
             items: [
               { text: '归档', link: '/a-share-briefings/' },
               ...briefingSidebarItems
+            ]
+          }
+        ],
+        '/stock-pool-dashboard/': [
+          {
+            text: '股票池盯盘看板',
+            items: [
+              { text: '归档', link: '/stock-pool-dashboard/' },
+              { text: '2026-07-28', link: '/stock-pool-dashboard/2026-07-28/' }
             ]
           }
         ]

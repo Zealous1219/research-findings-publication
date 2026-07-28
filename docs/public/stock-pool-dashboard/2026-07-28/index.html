@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>股票池盯盘看板 · 2026-07-28</title>
+<style>
+:root{
+ --bg:#f4f5f7;--card:#fff;--border:#e8eaed;
+ --up:#e53e3e;--up-bg:#fff5f5;--up-light:#fed7d7;
+ --down:#38a169;--down-bg:#f0fff4;--down-light:#c6f6d5;
+ --flat:#a0aec0;
+ --text:#2d3748;--text2:#718096;--text3:#a0aec0;
+ --mono:"SF Mono","Fira Code","Cascadia Code","JetBrains Mono",Consolas,"Courier New",monospace;
+ --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+ --shadow-sm:0 1px 2px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.06);
+ --shadow-md:0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+ --radius:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.container{max-width:1360px;margin:0 auto;padding:20px 16px}
+
+/* ── Header ── */
+.header{background:linear-gradient(135deg,#1a202c 0%,#2d3748 100%);color:#fff;padding:20px 28px;border-radius:var(--radius);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.header-left h1{font-size:20px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:10px}
+.header-left h1 .icon{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:14px}
+.header-left .date{font-size:12px;opacity:.55;margin-top:4px;font-family:var(--mono)}
+.site-link{color:#fff;text-decoration:none;font-size:12px;padding:7px 10px;border:1px solid rgba(255,255,255,.25);border-radius:6px;white-space:nowrap}
+.site-link:hover{background:rgba(255,255,255,.1)}
+
+/* ── Summary Card (今日小结) ── */
+.summary-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow-sm);border:1px solid var(--border);margin-bottom:20px;overflow:hidden}
+.summary-top{padding:18px 24px 14px;display:flex;align-items:center;gap:10px}
+.summary-top .s-icon{width:24px;height:24px;border-radius:6px;background:#ebf4ff;color:#3182ce;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.summary-top .s-title{font-size:14px;font-weight:700;color:var(--text)}
+.summary-top .s-sub{font-size:11px;color:var(--text3);margin-left:auto;font-family:var(--mono)}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0;border-top:1px solid var(--border)}
+.sg-item{padding:16px 20px;border-right:1px solid var(--border);position:relative}
+.sg-item:last-child{border-right:none}
+.sg-item .sg-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;font-weight:500}
+.sg-item .sg-value{font-size:18px;font-weight:700;font-family:var(--mono);line-height:1.2}
+.sg-item .sg-detail{font-size:11px;color:var(--text2);margin-top:4px}
+.sg-item.accent-up{background:linear-gradient(180deg,rgba(229,62,62,.04),transparent)}
+.sg-item.accent-down{background:linear-gradient(180deg,rgba(56,161,105,.04),transparent)}
+.sg-item .sg-bar{position:absolute;left:0;top:0;bottom:0;width:3px}
+.sg-item .sg-bar.up{background:var(--up)}
+.sg-item .sg-bar.down{background:var(--down)}
+.sg-item .sg-bar.neutral{background:#3182ce}
+.summary-text{padding:14px 24px;border-top:1px solid var(--border);font-size:12.5px;line-height:1.7;color:var(--text2);background:#fafbfc}
+.summary-text strong{color:var(--text)}
+
+/* ── Index Cards ── */
+.index-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.idx-card{background:var(--card);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-sm);border-left:3px solid var(--flat);transition:box-shadow .2s,transform .15s}
+.idx-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.idx-card.up{border-left-color:var(--up)}
+.idx-card.down{border-left-color:var(--down)}
+.idx-name{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:500}
+.idx-price{font-size:24px;font-weight:700;font-family:var(--mono);line-height:1.2}
+.idx-chg{font-size:12px;font-family:var(--mono);margin-top:4px;display:flex;gap:6px;align-items:center}
+.idx-amt{font-size:10px;color:var(--text3);margin-top:6px}
+.chg-badge{display:inline-flex;align-items:center;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600}
+.chg-badge.up{background:var(--up-bg);color:var(--up)}
+.chg-badge.down{background:var(--down-bg);color:var(--down)}
+
+/* ── Metrics ── */
+.metrics{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.m-card{background:var(--card);border-radius:var(--radius);padding:12px 16px;flex:1;min-width:130px;box-shadow:var(--shadow-sm);text-align:center}
+.m-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;font-weight:500}
+.m-value{font-size:20px;font-weight:700;font-family:var(--mono);line-height:1.2}
+.m-sub{font-size:10px;color:var(--text3);margin-top:4px}
+
+/* ── Sector ── */
+.sector{background:var(--card);border-radius:var(--radius);margin-bottom:12px;box-shadow:var(--shadow-sm);overflow:hidden;border:1px solid var(--border);transition:box-shadow .2s}
+.sector:hover{box-shadow:var(--shadow-md)}
+.sector-head{padding:14px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;position:relative;transition:background .15s}
+.sector-head:hover{background:#fafbfc}
+.sector-head::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.sector-head.up::before{background:var(--up)}
+.sector-head.down::before{background:var(--down)}
+.sh-left{display:flex;align-items:center;gap:10px}
+.sh-name{font-size:15px;font-weight:700}
+.sh-count{font-size:10px;padding:2px 8px;border-radius:10px;background:#edf2f7;color:var(--text2);font-weight:500}
+.sh-ozdf{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.sh-right{display:flex;align-items:center;gap:18px}
+.sh-flow{font-size:12px;font-family:var(--mono);padding:3px 8px;border-radius:5px;font-weight:600}
+.sh-flow.up{background:var(--up-bg);color:var(--up)}
+.sh-flow.down{background:var(--down-bg);color:var(--down)}
+.sh-zdf{font-size:20px;font-weight:700;font-family:var(--mono);min-width:80px;text-align:right}
+.sh-arrow{width:20px;height:20px;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:transform .25s;font-size:12px}
+.sector-head.open .sh-arrow{transform:rotate(180deg)}
+.sector-body{display:none;border-top:1px solid var(--border)}
+.sector-body.show{display:block}
+
+/* ── Group ── */
+.grp-label{font-size:10px;font-weight:600;color:var(--text3);padding:8px 20px;background:#f7fafc;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.8px}
+
+/* ── Table ── */
+.stk-table{width:100%;border-collapse:collapse;font-size:13px}
+.stk-table th{text-align:right;padding:8px 14px;font-size:10px;color:var(--text3);font-weight:500;border-bottom:1px solid var(--border);white-space:nowrap;text-transform:uppercase;letter-spacing:.5px}
+.stk-table th:first-child,.stk-table th:nth-child(2){text-align:left}
+.stk-table td{text-align:right;padding:6px 14px;border-bottom:1px solid #f7fafc;font-family:var(--mono);font-size:12.5px}
+.stk-table td:first-child{text-align:left;font-family:var(--sans);font-weight:500;font-size:13px}
+.stk-table td:nth-child(2){text-align:left;font-size:10.5px;color:var(--text3);font-family:var(--mono)}
+.stk-table tbody tr{transition:background .1s}
+.stk-table tbody tr:hover{background:#f7fafc}
+.stk-table tbody tr:last-child td{border-bottom:none}
+.stk-table tbody tr:nth-child(even){background:#fafbfc}
+.stk-table tbody tr:nth-child(even):hover{background:#f0f4f8}
+
+/* ── Cell colors ── */
+.c-up{color:var(--up)}
+.c-down{color:var(--down)}
+.c-flat{color:var(--flat)}
+.c-muted{color:var(--text2)}
+.c-dim{color:var(--text3)}
+.flow-cell{font-weight:600}
+.flow-cell.up{color:var(--up)}
+.flow-cell.down{color:var(--down)}
+
+/* ── Tag ── */
+.stk-tag{display:inline-block;font-size:9px;padding:1px 4px;border-radius:3px;background:#fef3c7;color:#92400e;font-weight:500;margin-left:4px;vertical-align:middle}
+.stk-tag.multi{background:#ebf4ff;color:#3182ce}
+
+/* ── Pill badge (涨跌幅) ── */
+.pill{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;font-family:var(--mono);min-width:56px;text-align:center}
+.pill.up{background:var(--up-bg);color:var(--up)}
+.pill.down{background:var(--down-bg);color:var(--down)}
+.pill.flat{background:#f7fafc;color:var(--flat)}
+
+/* ── Sparkline ── */
+.spark{display:inline-block;vertical-align:middle}
+.spark svg{display:block}
+.spark-fill{opacity:.12}
+
+/* ── Sector Bar Chart (板块表现) ── */
+.sector-chart{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow-sm);border:1px solid var(--border);margin-bottom:20px;overflow:hidden}
+.sc-head{padding:14px 20px 10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.sc-head .sc-icon{font-size:14px}
+.sc-head .sc-title{font-size:14px;font-weight:700}
+.sc-body{padding:12px 20px 16px}
+.sc-row{display:flex;align-items:center;gap:8px;padding:3px 0}
+.sc-name{width:84px;font-size:12px;font-weight:500;text-align:right;flex-shrink:0;cursor:pointer;color:var(--text2)}
+.sc-name:hover{color:var(--text);text-decoration:underline}
+.sc-track{flex:1;height:22px;position:relative;background:#f7fafc;border-radius:3px;overflow:hidden}
+.sc-axis{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border);z-index:1}
+.sc-bar{position:absolute;top:2px;bottom:2px;border-radius:2px;transition:width .3s}
+.sc-bar.up{left:50%;background:linear-gradient(90deg,var(--up-light),var(--up))}
+.sc-bar.down{right:50%;background:linear-gradient(270deg,var(--down-light),var(--down))}
+.sc-val{width:60px;font-size:12px;font-weight:600;font-family:var(--mono);flex-shrink:0}
+.sc-badge{font-size:9px;padding:1px 5px;border-radius:8px;font-weight:600;margin-left:4px}
+.sc-badge.best{background:var(--up-bg);color:var(--up)}
+.sc-badge.worst{background:var(--down-bg);color:var(--down)}
+
+/* ── Blue info bar (资金主线) ── */
+.info-bar{margin:0;padding:12px 24px;border-top:1px solid var(--border);background:#ebf4ff;font-size:12.5px;line-height:1.7;color:#2c5282;display:flex;align-items:flex-start;gap:8px}
+.info-bar .ib-icon{flex-shrink:0;width:18px;height:18px;border-radius:4px;background:#3182ce;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:1px}
+.info-bar .ib-text{flex:1}
+.info-bar .ib-text strong{color:#1a365d}
+.info-bar .ib-text .hl-up{color:var(--up);font-weight:600}
+.info-bar .ib-text .hl-down{color:var(--down);font-weight:600}
+
+/* ── Strongest sector highlight ── */
+.m-card.highlight{background:linear-gradient(135deg,#fff5f5,#fff);border:1px solid var(--up-light)}
+.m-card.highlight .m-value{font-size:16px}
+
+/* ── Footer ── */
+.footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);line-height:1.8}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+ .header{flex-direction:column;text-align:center;gap:12px}
+ .summary-grid{grid-template-columns:1fr 1fr}
+ .sg-item{border-right:none;border-bottom:1px solid var(--border)}
+ .sg-item:nth-child(odd){border-right:1px solid var(--border)}
+ .header{flex-direction:column;text-align:center;gap:12px}
+ .index-row{grid-template-columns:1fr 1fr}
+ .metrics{flex-wrap:wrap}
+ .m-card{min-width:calc(50% - 5px)}
+ .sc-name{width:64px;font-size:11px}
+ .sc-val{width:50px;font-size:11px}
+ .stk-table{font-size:11px}
+ .stk-table th,.stk-table td{padding:4px 8px}
+ .sh-zdf{font-size:16px;min-width:60px}
+ .info-bar{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- 今日小结：独立突出模块 -->
+  <div class="summary-card" id="summaryCard"></div>
+
+  <div class="header">
+    <div class="header-left">
+      <h1><span class="icon">📊</span>股票池盯盘看板</h1>
+      <div class="date">2026-07-28 MON · 收盘数据 · 19板块140只 · westock + tdx</div>
+    </div>
+    <a class="site-link" href="../../">返回研究站点</a>
+  </div>
+  <div class="index-row" id="indexRow"></div>
+  <div class="metrics" id="metricsBar"></div>
+  <!-- 板块表现条形图 -->
+  <div class="sector-chart" id="sectorChart"></div>
+  <div id="sectors"></div>
+  <div class="footer">
+    公开市场信息快照，仅作研究记录，不构成投资建议。<br>
+    涨红跌绿（A股惯例）· 主力净流入 = 超大单+大单净额 · 板块涨跌幅为板块内个股算术平均<br>
+    半导体/白酒/CPO有官方板块指数涨跌幅 · 曙光数创已更正为920808(原872808) · 静态快照，需手动刷新
+  </div>
+</div>
+<script>
+var IDX=[
+ {n:"上证指数",c:"000001",p:3813.31,ch:-44.93,pct:-1.16,amt:9497},
+ {n:"深证成指",c:"399001",p:13509.68,ch:-639.05,pct:-4.52,amt:10761},
+ {n:"创业板指",c:"399006",p:3327.03,ch:-263.76,pct:-7.35,amt:5231}
+];
+
+var D=[
+{name:"半导体",ozdf:-7.47,zj:[
+ {n:"中芯国际",c:"688981",p:136.70,ch:-7.07,pct:-4.92,tr:3.29,vr:0.89,mk:11703,mf:-1.94},
+ {n:"北方华创",c:"002371",p:715.00,ch:-55.00,pct:-7.14,tr:1.80,vr:0.81,mk:5189,mf:-7.12},
+ {n:"中微公司",c:"688012",p:383.00,ch:-16.77,pct:-4.19,tr:2.70,vr:0.81,mk:3669,mf:-0.18}
+],tx:[
+ {n:"寒武纪",c:"688256",p:1128.00,ch:-113.02,pct:-9.11,tr:2.30,vr:1.24,mk:7087,mf:0.71},
+ {n:"海光信息",c:"688041",p:298.28,ch:-15.31,pct:-4.88,tr:1.08,vr:0.89,mk:6933,mf:-6.32},
+ {n:"澜起科技",c:"688008",p:206.04,ch:-21.41,pct:-9.41,tr:5.43,vr:0.89,mk:2515,mf:-20.12},
+ {n:"长电科技",c:"600584",p:76.83,ch:-5.52,pct:-6.70,tr:7.69,vr:0.68,mk:1375,mf:-13.29},
+ {n:"沪电股份",c:"002463",p:105.75,ch:-11.75,pct:-10.00,tr:2.73,vr:0.82,mk:2035,mf:-12.34},
+ {n:"芯原股份",c:"688521",p:205.41,ch:-19.18,pct:-8.54,tr:3.02,vr:0.79,mk:1080,mf:-6.07}
+]},
+{name:"CPO/光模块",ozdf:-5.88,zj:[
+ {n:"中际旭创",c:"300308",p:908.00,ch:-168.94,pct:-15.69,tr:4.87,vr:1.70,mk:10126,mf:-56.87},
+ {n:"新易盛",c:"300502",p:406.90,ch:-84.10,pct:-17.13,tr:6.16,vr:1.53,mk:5673,mf:-49.27},
+ {n:"天孚通信",c:"300394",p:181.56,ch:-27.63,pct:-13.21,tr:4.10,vr:1.19,mk:1981,mf:-17.99}
+],tx:[
+ {n:"光迅科技",c:"002281",p:173.57,ch:-19.28,pct:-10.00,tr:4.55,vr:0.73,mk:1437,mf:-9.64},
+ {n:"剑桥科技",c:"603083",p:156.40,ch:-17.38,pct:-10.00,tr:5.30,vr:0.59,mk:576,mf:-4.95},
+ {n:"太辰光",c:"300570",p:125.00,ch:-15.99,pct:-11.34,tr:7.31,vr:0.94,mk:284,mf:-2.16},
+ {n:"长飞光纤",c:"601869",p:302.30,ch:-33.59,pct:-10.00,tr:2.64,vr:0.62,mk:2503,mf:-5.48},
+ {n:"华工科技",c:"000988",p:100.58,ch:-11.18,pct:-10.00,tr:5.13,vr:0.84,mk:1011,mf:-12.23},
+ {n:"源杰科技",c:"688498",p:1226.00,ch:-247.01,pct:-16.77,tr:5.23,vr:1.00,mk:1526,mf:0.28}
+]},
+{name:"存储芯片",zj:[
+ {n:"兆易创新",c:"603986",p:390.63,ch:-43.40,pct:-10.00,tr:6.64,vr:0.71,mk:2741,mf:-43.46},
+ {n:"澜起科技",c:"688008",p:206.04,ch:-21.41,pct:-9.41,tr:5.43,vr:0.89,mk:2515,mf:-20.12},
+ {n:"江波龙",c:"301308",p:330.00,ch:-43.90,pct:-11.74,tr:6.51,vr:0.94,mk:1396,mf:-11.43}
+],tx:[
+ {n:"北京君正",c:"300223",p:127.10,ch:-18.56,pct:-12.74,tr:10.63,vr:1.00,mk:615,mf:-8.52},
+ {n:"佰维存储",c:"688525",p:209.82,ch:-31.31,pct:-12.98,tr:8.05,vr:0.99,mk:989,mf:-16.00},
+ {n:"德明利",c:"001309",p:361.44,ch:-40.16,pct:-10.00,tr:11.69,vr:0.69,mk:820,mf:-9.98},
+ {n:"东芯股份",c:"688110",p:106.00,ch:-9.15,pct:-7.95,tr:4.05,vr:0.68,mk:469,mf:-1.44},
+ {n:"聚辰股份",c:"688123",p:116.64,ch:-14.59,pct:-11.12,tr:7.14,vr:0.84,mk:185,mf:-0.86}
+]},
+{name:"算力租赁",zj:[
+ {n:"润泽科技",c:"300442",p:63.23,ch:-3.05,pct:-4.60,tr:1.34,vr:0.68,mk:1038,mf:-1.65},
+ {n:"中科曙光",c:"603019",p:92.10,ch:-4.64,pct:-4.80,tr:3.99,vr:0.65,mk:1348,mf:-8.17},
+ {n:"浪潮信息",c:"000977",p:79.85,ch:-5.15,pct:-6.06,tr:6.45,vr:0.66,mk:1173,mf:-4.73}
+],tx:[
+ {n:"工业富联",c:"601138",p:58.08,ch:-3.47,pct:-5.64,tr:0.63,vr:0.89,mk:11525,mf:-14.77},
+ {n:"奥飞数据",c:"300738",p:21.30,ch:-0.19,pct:-0.88,tr:4.73,vr:0.56,mk:210,mf:-0.36},
+ {n:"利通电子",c:"603629",p:103.55,ch:-11.51,pct:-10.00,tr:8.64,vr:0.77,mk:380,mf:-4.94},
+ {n:"数据港",c:"603881",p:23.93,ch:-0.55,pct:-2.25,tr:2.69,vr:0.44,mk:206,mf:-0.45}
+]},
+{name:"液冷",zj:[
+ {n:"英维克",c:"002837",p:55.13,ch:-6.13,pct:-10.01,tr:4.20,vr:1.05,mk:703,mf:-5.89},
+ {n:"曙光数创",c:"920808",p:62.47,ch:-2.73,pct:-4.19,tr:0.89,vr:0.65,mk:125,mf:null},
+ {n:"申菱环境",c:"301018",p:78.68,ch:-14.45,pct:-15.52,tr:7.44,vr:1.30,mk:294,mf:-0.39}
+],tx:[
+ {n:"高澜股份",c:"300499",p:25.93,ch:-2.04,pct:-7.29,tr:6.41,vr:0.81,mk:79,mf:-0.44},
+ {n:"飞荣达",c:"300602",p:34.23,ch:-3.17,pct:-8.48,tr:4.78,vr:0.81,mk:201,mf:0.03},
+ {n:"中石科技",c:"300684",p:47.25,ch:-4.25,pct:-8.25,tr:7.91,vr:0.93,mk:142,mf:0.59},
+ {n:"同飞股份",c:"300990",p:82.31,ch:-8.36,pct:-9.22,tr:7.21,vr:0.75,mk:141,mf:-0.23},
+ {n:"川润股份",c:"002272",p:14.39,ch:-1.20,pct:-7.70,tr:6.64,vr:0.77,mk:70,mf:-0.62}
+]},
+{name:"商业航天",zj:[
+ {n:"中国卫星",c:"600118",p:57.94,ch:-1.76,pct:-2.95,tr:2.32,vr:0.66,mk:685,mf:-2.05},
+ {n:"中国卫通",c:"601698",p:24.99,ch:-0.34,pct:-1.34,tr:0.46,vr:0.66,mk:1056,mf:-0.33},
+ {n:"航天电子",c:"600879",p:14.64,ch:-0.44,pct:-2.92,tr:2.13,vr:0.67,mk:483,mf:-1.49}
+],tx:[
+ {n:"神剑股份",c:"002361",p:9.43,ch:-0.21,pct:-2.18,tr:6.78,vr:0.76,mk:90,mf:-0.39},
+ {n:"西部材料",c:"002149",p:32.86,ch:-0.33,pct:-0.99,tr:4.91,vr:0.82,mk:160,mf:0.29},
+ {n:"再升科技",c:"603601",p:8.12,ch:-0.19,pct:-2.29,tr:5.42,vr:0.81,mk:93,mf:-0.17},
+ {n:"航天发展",c:"000547",p:14.17,ch:-0.06,pct:-0.42,tr:3.49,vr:0.56,mk:227,mf:-0.60},
+ {n:"航天环宇",c:"688523",p:39.80,ch:-1.88,pct:-4.51,tr:0.86,vr:0.61,mk:162,mf:-0.01}
+]},
+{name:"人形机器人",zj:[
+ {n:"三花智控",c:"002050",p:35.58,ch:-0.45,pct:-1.25,tr:1.43,vr:0.69,mk:1497,mf:-1.56},
+ {n:"拓普集团",c:"601689",p:45.60,ch:-0.78,pct:-1.68,tr:1.31,vr:0.77,mk:792,mf:-1.17},
+ {n:"卧龙电驱",c:"600580",p:29.05,ch:-0.58,pct:-1.96,tr:1.44,vr:0.79,mk:454,mf:-0.87}
+],tx:[
+ {n:"绿的谐波",c:"688017",p:293.03,ch:-18.47,pct:-5.93,tr:4.34,vr:0.87,mk:537,mf:-1.14},
+ {n:"鸣志电器",c:"603728",p:47.01,ch:-1.21,pct:-2.51,tr:0.94,vr:0.74,mk:197,mf:-0.07},
+ {n:"中大力德",c:"002896",p:61.46,ch:-0.82,pct:-1.32,tr:2.32,vr:0.72,mk:121,mf:-0.03},
+ {n:"五洲新春",c:"603667",p:50.85,ch:-0.93,pct:-1.80,tr:3.48,vr:0.78,mk:195,mf:0.08},
+ {n:"柯力传感",c:"603662",p:47.94,ch:-0.69,pct:-1.42,tr:1.52,vr:0.66,mk:135,mf:-0.01}
+]},
+{name:"电力",zj:[
+ {n:"长江电力",c:"600900",p:29.07,ch:0.72,pct:2.54,tr:0.66,vr:1.04,mk:7113,mf:3.80},
+ {n:"华能国际",c:"600011",p:7.16,ch:0.02,pct:0.28,tr:0.85,vr:0.51,mk:1124,mf:0.07},
+ {n:"国电电力",c:"600795",p:4.85,ch:-0.04,pct:-0.82,tr:0.63,vr:0.63,mk:865,mf:-0.11}
+],tx:[
+ {n:"华电辽能",c:"600396",p:16.58,ch:0.90,pct:5.74,tr:23.53,vr:1.15,mk:244,mf:1.98},
+ {n:"大唐发电",c:"601991",p:5.94,ch:-0.28,pct:-4.50,tr:3.50,vr:0.53,mk:1099,mf:-2.73},
+ {n:"桂冠电力",c:"600236",p:9.93,ch:-0.63,pct:-5.97,tr:0.45,vr:0.56,mk:783,mf:-0.17},
+ {n:"建投能源",c:"000600",p:8.54,ch:-0.23,pct:-2.62,tr:2.53,vr:0.48,mk:154,mf:-0.25}
+]},
+{name:"创新药",zj:[
+ {n:"恒瑞医药",c:"600276",p:53.29,ch:-0.31,pct:-0.58,tr:0.75,vr:0.62,mk:3537,mf:-2.06},
+ {n:"百济神州",c:"688235",p:263.18,ch:-10.82,pct:-3.95,tr:3.12,vr:0.64,mk:4057,mf:-1.06},
+ {n:"信达生物",c:"HK01801",p:89.90,ch:0.55,pct:0.62,tr:0.45,vr:0.78,mk:1565,mf:-0.14}
+],tx:[
+ {n:"荣昌生物",c:"688331",p:119.60,ch:-3.90,pct:-3.16,tr:1.36,vr:0.67,mk:675,mf:0.06},
+ {n:"凯莱英",c:"002821",p:157.36,ch:-5.59,pct:-3.43,tr:2.14,vr:0.64,mk:568,mf:-0.64},
+ {n:"君实生物-U",c:"688180",p:35.72,ch:-1.61,pct:-4.31,tr:1.63,vr:0.75,mk:367,mf:0.15},
+ {n:"百利天恒",c:"688506",p:307.01,ch:-6.22,pct:-1.99,tr:0.29,vr:0.55,mk:1268,mf:-0.39}
+]},
+{name:"电网设备",zj:[
+ {n:"国电南瑞",c:"600406",p:23.56,ch:-0.34,pct:-1.42,tr:0.63,vr:0.53,mk:1892,mf:-0.63},
+ {n:"特变电工",c:"600089",p:20.25,ch:-0.40,pct:-1.94,tr:1.87,vr:0.55,mk:1023,mf:-1.38},
+ {n:"中国西电",c:"601179",p:13.44,ch:-0.65,pct:-4.61,tr:4.04,vr:0.88,mk:689,mf:-3.53}
+],tx:[
+ {n:"平高电气",c:"600312",p:18.91,ch:-0.19,pct:-0.99,tr:1.98,vr:0.73,mk:257,mf:0.19},
+ {n:"许继电气",c:"000400",p:21.78,ch:-0.52,pct:-2.33,tr:1.82,vr:0.59,mk:222,mf:-0.44},
+ {n:"思源电气",c:"002028",p:161.28,ch:-7.02,pct:-4.17,tr:1.74,vr:0.78,mk:1262,mf:-0.52},
+ {n:"东方电子",c:"000682",p:11.60,ch:-0.18,pct:-1.53,tr:0.97,vr:0.60,mk:156,mf:-0.19}
+]},
+{name:"消费电子",zj:[
+ {n:"立讯精密",c:"002475",p:60.10,ch:-2.79,pct:-4.44,tr:1.39,vr:0.90,mk:4643,mf:-5.87},
+ {n:"歌尔股份",c:"002241",p:22.85,ch:-0.02,pct:-0.09,tr:2.90,vr:0.97,mk:812,mf:-0.50},
+ {n:"蓝思科技",c:"300433",p:33.86,ch:-2.77,pct:-7.56,tr:2.53,vr:0.89,mk:1787,mf:-9.39}
+],tx:[
+ {n:"东山精密",c:"002384",p:190.71,ch:-21.19,pct:-10.00,tr:5.27,vr:0.65,mk:3493,mf:-38.27},
+ {n:"水晶光电",c:"002273",p:26.10,ch:-1.63,pct:-5.88,tr:3.54,vr:0.81,mk:363,mf:-1.61},
+ {n:"工业富联",c:"601138",p:58.08,ch:-3.47,pct:-5.64,tr:0.63,vr:0.89,mk:11525,mf:-14.77},
+ {n:"欧菲光",c:"002456",p:6.83,ch:-0.01,pct:-0.15,tr:1.81,vr:0.63,mk:239,mf:-0.25}
+]},
+{name:"AI应用",zj:[
+ {n:"科大讯飞",c:"002230",p:39.81,ch:0.08,pct:0.20,tr:1.37,vr:0.80,mk:956,mf:-0.97},
+ {n:"金山办公",c:"688111",p:241.24,ch:0.44,pct:0.18,tr:2.01,vr:0.89,mk:1119,mf:-0.62},
+ {n:"昆仑万维",c:"300418",p:37.61,ch:-0.56,pct:-1.47,tr:4.31,vr:0.73,mk:483,mf:0.09}
+],tx:[
+ {n:"三六零",c:"601360",p:8.68,ch:0.02,pct:0.23,tr:0.98,vr:0.61,mk:608,mf:-0.43},
+ {n:"万兴科技",c:"300624",p:46.60,ch:0.52,pct:1.13,tr:3.79,vr:0.83,mk:90,mf:0.06},
+ {n:"中文在线",c:"300364",p:21.01,ch:0.95,pct:4.74,tr:10.36,vr:1.87,mk:153,mf:0.28},
+ {n:"蓝色光标",c:"300058",p:11.77,ch:-0.06,pct:-0.51,tr:6.50,vr:0.94,mk:423,mf:-1.34}
+]},
+{name:"电池产业链",zj:[
+ {n:"宁德时代",c:"300750",p:390.86,ch:-9.14,pct:-2.29,tr:0.87,vr:1.01,mk:18084,mf:-1.38},
+ {n:"比亚迪",c:"002594",p:93.35,ch:0.95,pct:1.03,tr:1.04,vr:0.86,mk:8511,mf:2.63},
+ {n:"亿纬锂能",c:"300014",p:54.08,ch:-1.03,pct:-1.87,tr:1.57,vr:0.59,mk:1175,mf:-2.09}
+],tx:[
+ {n:"恩捷股份",c:"002812",p:52.32,ch:-1.23,pct:-2.30,tr:2.26,vr:0.68,mk:513,mf:-0.05},
+ {n:"天赐材料",c:"002709",p:37.29,ch:-1.00,pct:-2.61,tr:4.58,vr:0.83,mk:760,mf:0.15},
+ {n:"德福科技",c:"301511",p:72.45,ch:-9.05,pct:-11.10,tr:6.86,vr:0.82,mk:457,mf:-1.40},
+ {n:"湖南裕能",c:"301358",p:63.07,ch:-2.62,pct:-3.99,tr:2.21,vr:0.76,mk:535,mf:-0.61}
+]},
+{name:"锂矿",zj:[
+ {n:"天齐锂业",c:"002466",p:44.44,ch:-0.77,pct:-1.70,tr:2.47,vr:0.57,mk:761,mf:-1.36},
+ {n:"赣锋锂业",c:"002460",p:49.04,ch:-1.04,pct:-2.08,tr:3.01,vr:0.67,mk:1028,mf:-1.10},
+ {n:"盐湖股份",c:"000792",p:26.99,ch:-0.16,pct:-0.59,tr:0.88,vr:0.55,mk:1428,mf:-0.93}
+],tx:[
+ {n:"中矿资源",c:"002738",p:47.75,ch:-0.99,pct:-2.03,tr:2.96,vr:0.57,mk:345,mf:-0.77},
+ {n:"华友钴业",c:"603799",p:39.28,ch:-0.79,pct:-1.97,tr:2.10,vr:0.49,mk:744,mf:-1.81},
+ {n:"西藏矿业",c:"000762",p:21.45,ch:-0.26,pct:-1.20,tr:2.53,vr:0.65,mk:112,mf:-0.21},
+ {n:"融捷股份",c:"002192",p:64.30,ch:-1.03,pct:-1.58,tr:7.07,vr:0.80,mk:167,mf:0.06}
+]},
+{name:"稀土永磁",zj:[
+ {n:"北方稀土",c:"600111",p:38.99,ch:-0.49,pct:-1.24,tr:1.09,vr:0.62,mk:1410,mf:-2.18},
+ {n:"中国稀土",c:"000831",p:46.78,ch:-1.28,pct:-2.66,tr:1.60,vr:0.60,mk:496,mf:-0.73},
+ {n:"盛和资源",c:"600392",p:20.10,ch:-0.84,pct:-4.01,tr:3.01,vr:0.67,mk:352,mf:-1.05}
+],tx:[
+ {n:"金力永磁",c:"300748",p:24.20,ch:-0.55,pct:-2.22,tr:1.68,vr:0.82,mk:333,mf:-0.44},
+ {n:"横店东磁",c:"002056",p:20.93,ch:-1.22,pct:-5.51,tr:1.78,vr:0.81,mk:340,mf:-0.46},
+ {n:"中科三环",c:"000970",p:12.84,ch:-0.83,pct:-6.07,tr:4.86,vr:0.92,mk:156,mf:-0.31},
+ {n:"正海磁材",c:"300224",p:10.66,ch:-0.10,pct:-0.93,tr:0.98,vr:0.65,mk:99,mf:-0.06}
+]},
+{name:"光伏",zj:[
+ {n:"阳光电源",c:"300274",p:112.08,ch:-4.13,pct:-3.55,tr:3.13,vr:0.73,mk:2324,mf:-7.12},
+ {n:"隆基绿能",c:"601012",p:12.68,ch:0.04,pct:0.32,tr:1.02,vr:0.56,mk:961,mf:-0.28},
+ {n:"通威股份",c:"600438",p:11.19,ch:0.02,pct:0.18,tr:0.74,vr:0.60,mk:504,mf:-0.26}
+],tx:[
+ {n:"TCL中环",c:"002129",p:8.55,ch:-0.10,pct:-1.16,tr:1.80,vr:0.58,mk:346,mf:-0.63},
+ {n:"钧达股份",c:"002865",p:41.85,ch:-0.85,pct:-1.99,tr:3.08,vr:0.71,mk:130,mf:0.04},
+ {n:"东方日升",c:"300118",p:9.22,ch:-0.09,pct:-0.97,tr:2.79,vr:0.79,mk:105,mf:-0.06},
+ {n:"德业股份",c:"605117",p:83.20,ch:-5.02,pct:-5.69,tr:1.11,vr:0.78,mk:1059,mf:-0.96}
+]},
+{name:"旅游",zj:[
+ {n:"宋城演艺",c:"300144",p:6.04,ch:0.01,pct:0.17,tr:1.33,vr:0.76,mk:158,mf:-0.23},
+ {n:"中青旅",c:"600138",p:7.00,ch:0.05,pct:0.72,tr:0.80,vr:0.66,mk:51,mf:-0.05},
+ {n:"黄山旅游",c:"600054",p:11.00,ch:0.07,pct:0.64,tr:1.06,vr:0.93,mk:80,mf:-0.06}
+],tx:[
+ {n:"长白山",c:"603099",p:36.88,ch:-0.31,pct:-0.83,tr:1.97,vr:0.97,mk:100,mf:-0.06},
+ {n:"众信旅游",c:"002707",p:5.04,ch:0.08,pct:1.61,tr:3.58,vr:1.62,mk:50,mf:-0.06},
+ {n:"锦江酒店",c:"600754",p:18.92,ch:0.28,pct:1.50,tr:1.98,vr:0.96,mk:202,mf:0.10},
+ {n:"丽江股份",c:"002033",p:8.49,ch:0.07,pct:0.83,tr:2.95,vr:1.27,mk:47,mf:-0.15}
+]},
+{name:"免税",zj:[
+ {n:"中国中免",c:"601888",p:55.51,ch:1.07,pct:1.97,tr:2.06,vr:1.06,mk:1153,mf:1.12},
+ {n:"王府井",c:"600859",p:9.89,ch:0.14,pct:1.44,tr:1.32,vr:0.96,mk:111,mf:-0.14},
+ {n:"海南机场",c:"600515",p:2.83,ch:0.03,pct:1.07,tr:0.91,vr:0.86,mk:323,mf:0.13}
+],tx:[
+ {n:"珠免集团",c:"600185",p:4.70,ch:0.09,pct:1.95,tr:1.25,vr:1.07,mk:89,mf:-0.05},
+ {n:"海汽集团",c:"603069",p:12.44,ch:0.20,pct:1.63,tr:0.91,vr:0.91,mk:39,mf:-0.02},
+ {n:"海南发展",c:"002163",p:7.76,ch:0.07,pct:0.91,tr:3.00,vr:0.93,mk:66,mf:0.03}
+]},
+{name:"白酒",ozdf:2.36,zj:[
+ {n:"贵州茅台",c:"600519",p:1320.00,ch:30.50,pct:2.37,tr:0.43,vr:1.09,mk:16501,mf:5.09},
+ {n:"五粮液",c:"000858",p:74.80,ch:0.90,pct:1.22,tr:0.81,vr:0.82,mk:2903,mf:1.07},
+ {n:"泸州老窖",c:"000568",p:87.00,ch:3.27,pct:3.91,tr:1.13,vr:1.09,mk:1281,mf:-0.22}
+],tx:[
+ {n:"山西汾酒",c:"600809",p:126.25,ch:3.19,pct:2.59,tr:1.07,vr:1.12,mk:1540,mf:1.39},
+ {n:"洋河股份",c:"002304",p:40.12,ch:0.42,pct:1.06,tr:0.43,vr:0.80,mk:604,mf:0.06},
+ {n:"古井贡酒",c:"000596",p:90.45,ch:2.70,pct:3.08,tr:2.28,vr:0.85,mk:478,mf:-0.25},
+ {n:"舍得酒业",c:"600702",p:33.66,ch:0.53,pct:1.60,tr:2.32,vr:0.84,mk:112,mf:-0.12}
+]}
+];
+
+function C(v){return v>0?'up':v<0?'down':'flat'}
+function CC(v){return v>0?'c-up':v<0?'c-down':'c-flat'}
+function FC(v){return v>0?'flow-cell up':'flow-cell down'}
+function fp(v){return(v>0?'+':'')+v.toFixed(2)+'%'}
+function ff(v){
+ if(v==null)return '<span class="c-dim">—</span>';
+ if(v==0)return '<span class="c-dim">0</span>';
+ return (v>0?'+':'')+v.toFixed(v>=10||v<=-10?1:2)+'亿';
+}
+function fm(n){return n>=10000?(n/10000).toFixed(1)+'万亿':n+'亿'}
+
+// Sparkline generator: deterministic pseudo-trend based on code+direction
+function spark(seed,isUp,w,h){
+ var s=0;for(var i=0;i<seed.length;i++)s=s*31+seed.charCodeAt(i);s=Math.abs(s);
+ function r(){s=(s*9301+49297)%233280;return s/233280}
+ var n=20,pts=[],mid=h/2,amp=h*0.32;
+ for(var i=0;i<n;i++){
+  var t=i/(n-1);
+  var trend=isUp?(0.3-t*0.6):(-0.3+t*0.6);
+  var noise=(r()-0.5)*0.7;
+  var y=mid+(trend+noise)*amp;
+  if(y<2)y=2;if(y>h-2)y=h-2;
+  pts.push((t*w).toFixed(1)+','+y.toFixed(1));
+ }
+ var color=isUp?'#e53e3e':'#38a169';
+ var fill=isUp?'#fed7d7':'#c6f6d5';
+ var path='M'+pts.join(' L');
+ var areaPath=path+' L'+w+','+h+' L0,'+h+' Z';
+ return '<svg width="'+w+'" height="'+h+'" class="spark"><path d="'+areaPath+'" fill="'+fill+'" class="spark-fill"/><path d="'+path+'" fill="none" stroke="'+color+'" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+}
+
+// Multi-sector stock lookup
+var multiSector={};
+D.forEach(function(s){s.zj.concat(s.tx).forEach(function(x){
+ var k=x.c;
+ if(!multiSector[k])multiSector[k]=[];
+ if(multiSector[k].indexOf(s.name)<0)multiSector[k].push(s.name);
+})});
+
+D.forEach(function(s){
+ var a=s.zj.concat(s.tx);
+ s.avg=a.reduce(function(r,x){return r+x.pct},0)/a.length;
+ s.mf=a.reduce(function(r,x){return r+(x.mf||0)},0);
+ s.cnt=a.length;
+});
+D.sort(function(a,b){return b.avg-a.avg});
+
+var tM=0,tU=0,tD=0,tL=0,tT=0,inf=[];
+D.forEach(function(s){s.zj.concat(s.tx).forEach(function(x){
+ tT++;tM+=x.mf||0;
+ if(x.pct>0)tU++;else if(x.pct<0)tD++;
+ if(x.pct<=-10)tL++;
+ if(x.mf&&x.mf>0)inf.push(x);
+})});
+inf.sort(function(a,b){return b.mf-a.mf});
+
+var best=D[0],worst=D[D.length-1];
+
+// === Render: 今日小结 ===
+document.getElementById('summaryCard').innerHTML=
+ '<div class="summary-top">'+
+ '<div class="s-icon">📋</div><div class="s-title">今日小结</div>'+
+ '<div class="s-sub">2026-07-28 收盘</div></div>'+
+ '<div class="summary-grid">'+
+ '<div class="sg-item accent-up"><div class="sg-bar up"></div><div class="sg-label">主力净流出</div><div class="sg-value c-up">-'+Math.abs(tM).toFixed(1)+'亿</div></div>'+
+ '<div class="sg-item accent-down"><div class="sg-bar down"></div><div class="sg-label">创业板指</div><div class="sg-value c-down">-7.35%</div></div>'+
+ '<div class="sg-item"><div class="sg-bar up"></div><div class="sg-label">领涨板块</div><div class="sg-value c-up">'+best.name+'</div><div class="sg-detail">+'+best.avg.toFixed(2)+'%</div></div>'+
+ '<div class="sg-item"><div class="sg-bar down"></div><div class="sg-label">领跌板块</div><div class="sg-value c-down">'+worst.name+'</div><div class="sg-detail">'+worst.avg.toFixed(2)+'%</div></div>'+
+ '<div class="sg-item"><div class="sg-bar neutral"></div><div class="sg-label">净流入前三</div><div class="sg-value" style="font-size:13px;line-height:1.5">'+inf.slice(0,3).map(function(x){return '<div>'+x.n+' <span class="c-up" style="font-weight:600">+'+x.mf.toFixed(1)+'亿</span></div>'}).join('')+'</div></div>'+
+ '</div>'+
+ '<div class="info-bar"><div class="ib-icon">💡</div><div class="ib-text">'+
+ '<strong>消费白酒逆势走强</strong>，<span class="hl-up">贵州茅台+5.1亿</span>领衔净流入；<strong>科技板块全线回调</strong>，创业板指<span class="hl-down">-7.35%</span>重挫，CPO/光模块跌超12%。'+
+ '主力净流出<span class="hl-down">485.7亿</span>，资金避险情绪明显，防御性板块获青睐。'+
+ '</div></div>';
+
+// === Render: 指数卡片 (with sparkline) ===
+document.getElementById('indexRow').innerHTML=IDX.map(function(x){
+ var cls=C(x.pct),isUp=x.pct>0;
+ return '<div class="idx-card '+cls+'">'+
+ '<div class="idx-name">'+x.n+'</div>'+
+ '<div style="display:flex;justify-content:space-between;align-items:center">'+
+ '<div>'+
+ '<div class="idx-price '+CC(x.pct)+'">'+x.p.toFixed(2)+'</div>'+
+ '<div class="idx-chg '+CC(x.pct)+'">'+(x.ch>0?'+':'')+x.ch.toFixed(2)+
+ '<span class="chg-badge '+cls+'">'+fp(x.pct)+'</span></div>'+
+ '</div>'+
+ spark(x.c,isUp,56,32)+
+ '</div>'+
+ '<div class="idx-amt">成交 '+x.amt+'亿</div></div>';
+}).join('');
+
+// === Render: 指标条 (add 最强板块) ===
+document.getElementById('metricsBar').innerHTML=
+ '<div class="m-card"><div class="m-label">上涨</div><div class="m-value c-up">'+tU+'</div><div class="m-sub">/ '+tT+'</div></div>'+
+ '<div class="m-card"><div class="m-label">下跌</div><div class="m-value c-down">'+tD+'</div><div class="m-sub">/ '+tT+'</div></div>'+
+ '<div class="m-card"><div class="m-label">跌停</div><div class="m-value c-down">'+tL+'</div><div class="m-sub">≥10%</div></div>'+
+ '<div class="m-card highlight"><div class="m-label">最强板块</div><div class="m-value c-up">'+best.name+'</div><div class="m-sub">+'+best.avg.toFixed(2)+'%</div></div>'+
+ '<div class="m-card"><div class="m-label">主力净流入</div><div class="m-value '+CC(tM)+'">'+(tM>0?'+':'')+tM.toFixed(1)+'亿</div><div class="m-sub">全池</div></div>'+
+ '<div class="m-card"><div class="m-label">净流入个股</div><div class="m-value c-up">'+inf.length+'</div><div class="m-sub">/ '+tT+'</div></div>';
+
+// === Render: 板块表现条形图 ===
+var maxAbs=Math.max.apply(null,D.map(function(s){return Math.abs(s.avg)}));
+document.getElementById('sectorChart').innerHTML=
+ '<div class="sc-head"><span class="sc-icon">📊</span><span class="sc-title">板块今日表现</span></div>'+
+ '<div class="sc-body">'+
+ D.map(function(s,i){
+  var cls=C(s.avg),isUp=s.avg>0;
+  var pct=Math.abs(s.avg)/maxAbs*50; // max 50% of track width
+  var badge=i===0?'<span class="sc-badge best">最强</span>':i===D.length-1?'<span class="sc-badge worst">最弱</span>':'';
+  return '<div class="sc-row">'+
+   '<div class="sc-name" onclick="document.getElementById(\'sh'+i+'\').scrollIntoView({behavior:\'smooth\'});T('+i+');if(!document.getElementById(\'sb'+i+'\').classList.contains(\'show\'))T('+i+')">'+s.name+badge+'</div>'+
+   '<div class="sc-track"><div class="sc-axis"></div>'+
+   (isUp?'<div class="sc-bar up" style="width:'+pct+'%"></div>':'<div class="sc-bar down" style="width:'+pct+'%"></div>')+
+   '</div>'+
+   '<div class="sc-val '+CC(s.avg)+'">'+fp(s.avg)+'</div>'+
+   '</div>';
+ }).join('')+
+ '</div>';
+
+// === Render: 板块折叠区 (with sparkline + pill badge) ===
+document.getElementById('sectors').innerHTML=D.map(function(s,i){
+ var zdf=s.avg;
+ var oz=s.ozdf!=null?'<span class="sh-ozdf">板块指数'+fp(s.ozdf)+'</span>':'';
+ function rr(x){
+  var tg='';
+  if(x.c.indexOf('HK')>=0)tg='<span class="stk-tag">港</span>';
+  var ms=multiSector[x.c];
+  if(ms&&ms.length>1)tg+='<span class="stk-tag multi" title="'+ms.join('、')+'">多板块</span>';
+  var pillCls=x.pct>0?'up':x.pct<0?'down':'flat';
+  return '<tr>'+
+  '<td>'+x.n+tg+'</td><td>'+x.c+'</td>'+
+  '<td class="'+CC(x.pct)+'">'+x.p.toFixed(2)+'</td>'+
+  '<td>'+spark(x.c,x.pct>0,48,20)+'</td>'+
+  '<td><span class="pill '+pillCls+'">'+fp(x.pct)+'</span></td>'+
+  '<td class="'+FC(x.mf||0)+'">'+ff(x.mf)+'</td>'+
+  '<td class="c-muted">'+x.tr.toFixed(2)+'%</td>'+
+  '<td class="c-muted">'+x.vr.toFixed(2)+'</td>'+
+  '<td class="c-dim">'+fm(x.mk)+'</td></tr>';
+ }
+ return '<div class="sector">'+
+ '<div class="sector-head '+C(zdf)+'" id="sh'+i+'" onclick="T('+i+')">'+
+ '<div class="sh-left"><span class="sh-name">'+s.name+'</span><span class="sh-count">'+s.cnt+'只</span>'+oz+'</div>'+
+ '<div class="sh-right">'+
+ '<span class="sh-flow '+C(s.mf)+'">'+(s.mf>0?'+':'')+s.mf.toFixed(1)+'亿</span>'+
+ '<span class="sh-zdf '+CC(zdf)+'">'+(zdf>0?'+':'')+zdf.toFixed(2)+'%</span>'+
+ '<span class="sh-arrow">▾</span>'+
+ '</div></div>'+
+ '<div class="sector-body" id="sb'+i+'">'+
+ '<div class="grp-label">中军 · 核心标的</div>'+
+ '<table class="stk-table"><thead><tr><th>名称</th><th>代码</th><th>现价</th><th>走势</th><th>涨跌幅</th><th>主力净流入</th><th>换手</th><th>量比</th><th>市值</th></tr></thead><tbody>'+
+ s.zj.map(rr).join('')+'</tbody></table>'+
+ '<div class="grp-label">弹性锚 · 高弹性标的</div>'+
+ '<table class="stk-table"><thead><tr><th>名称</th><th>代码</th><th>现价</th><th>走势</th><th>涨跌幅</th><th>主力净流入</th><th>换手</th><th>量比</th><th>市值</th></tr></thead><tbody>'+
+ s.tx.map(rr).join('')+'</tbody></table>'+
+ '</div></div>';
+}).join('');
+
+function T(i){
+ document.getElementById('sh'+i).classList.toggle('open');
+ document.getElementById('sb'+i).classList.toggle('show');
+}
+for(var i=0;i<3;i++)T(i);
+</script>
+</body>
+</html>
