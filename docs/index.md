@@ -5,7 +5,7 @@
 ## 最新内容
 
 - [2026-07-28 A 股收盘简报](/a-share-briefings/2026-07-28)
-- [2026-07-28 股票池盯盘看板](/stock-pool-dashboard/2026-07-28/)
+- <a href="./stock-pool-dashboard/2026-07-28/" target="_self">2026-07-28 股票池盯盘看板</a>
 
 ## 栏目
 

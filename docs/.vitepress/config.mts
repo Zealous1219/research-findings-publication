@@ -46,7 +46,11 @@ export default withMermaid(
             text: '股票池盯盘看板',
             items: [
               { text: '归档', link: '/stock-pool-dashboard/' },
-              { text: '2026-07-28', link: '/stock-pool-dashboard/2026-07-28/' }
+              {
+                text: '2026-07-28',
+                link: '/stock-pool-dashboard/2026-07-28/',
+                target: '_self'
+              }
             ]
           }
         ]
