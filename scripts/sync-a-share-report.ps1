@@ -5,46 +5,53 @@ param(
 )
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$destinationDir = Join-Path $repoRoot 'docs\a-share-briefings'
+$docsRoot = Join-Path $repoRoot 'docs'
+$destinationDir = Join-Path $docsRoot 'a-share-briefings'
 $name = [System.IO.Path]::GetFileNameWithoutExtension($ReportPath)
+$extension = [System.IO.Path]::GetExtension($ReportPath)
 
-if ($name -notmatch '^(?<date>\d{4}-\d{2}-\d{2})_A股收盘简报$') {
-    throw '报告文件名必须是 YYYY-MM-DD_A股收盘简报.md。'
+if ($extension -ne '.md' -or $name -notmatch '^(?<date>\d{4}-\d{2}-\d{2})_') {
+    throw 'Report filename must start with YYYY-MM-DD_ and use the .md extension.'
 }
 
 $date = $Matches.date
 $destination = Join-Path $destinationDir "$date.md"
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+$newLine = [Environment]::NewLine
+
 Copy-Item -LiteralPath $ReportPath -Destination $destination -Force
 
 $reports = Get-ChildItem -LiteralPath $destinationDir -Filter '????-??-??.md' |
     Sort-Object Name -Descending |
     ForEach-Object { "- [$($_.BaseName)](/a-share-briefings/$($_.BaseName))" }
 
-$archive = @(
-    '# A 股收盘简报',
-    '',
-    '按交易日归档的市场信息整理。报告以生成时的数据状态为准。',
-    '',
-    $reports
-) -join [Environment]::NewLine
+$archivePath = Join-Path $destinationDir 'index.md'
+$archiveText = [System.IO.File]::ReadAllText($archivePath, [System.Text.Encoding]::UTF8)
+$archiveListPattern = '(?m)^- \[\d{4}-\d{2}-\d{2}\]\(/a-share-briefings/\d{4}-\d{2}-\d{2}\)\s*$'
+$firstArchiveItem = [regex]::Match($archiveText, $archiveListPattern)
 
-Set-Content -LiteralPath (Join-Path $destinationDir 'index.md') -Value $archive -Encoding utf8
+if ($firstArchiveItem.Success) {
+    $archiveHeader = $archiveText.Substring(0, $firstArchiveItem.Index).TrimEnd()
+} else {
+    $archiveHeader = $archiveText.TrimEnd()
+}
 
-$home = @(
-    '# Research Findings Publication',
-    '',
-    '公开的研究记录与市场信息整理。',
-    '',
-    '## 最新内容',
-    '',
-    "- [$date A 股收盘简报](/a-share-briefings/$date)",
-    '',
-    '## 栏目',
-    '',
-    '- [A 股收盘简报](/a-share-briefings/)',
-    '',
-    '所有内容均应保留来源、数据状态与适用范围。市场相关内容仅作信息整理与研究记录，不构成投资建议。'
-) -join [Environment]::NewLine
+$updatedArchive = $archiveHeader + $newLine + $newLine + ($reports -join $newLine) + $newLine
+[System.IO.File]::WriteAllText($archivePath, $updatedArchive, $utf8NoBom)
 
-Set-Content -LiteralPath (Join-Path $repoRoot 'docs\index.md') -Value $home -Encoding utf8
+$homePath = Join-Path $docsRoot 'index.md'
+$homeText = [System.IO.File]::ReadAllText($homePath, [System.Text.Encoding]::UTF8)
+$latestPattern = '(?m)^- \[\d{4}-\d{2}-\d{2} .+\]\(/a-share-briefings/\d{4}-\d{2}-\d{2}\)\s*$'
+$latestItem = [regex]::Match($homeText, $latestPattern)
+
+if (-not $latestItem.Success) {
+    throw 'Could not find the latest briefing link in docs/index.md.'
+}
+
+$updatedLatestItem = [regex]::Replace($latestItem.Value, '\d{4}-\d{2}-\d{2}', $date)
+$updatedHome = $homeText.Substring(0, $latestItem.Index) +
+    $updatedLatestItem +
+    $homeText.Substring($latestItem.Index + $latestItem.Length)
+[System.IO.File]::WriteAllText($homePath, $updatedHome, $utf8NoBom)
+
 Write-Output "Published source copied to $destination"
