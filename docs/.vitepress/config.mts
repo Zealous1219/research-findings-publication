@@ -47,6 +47,11 @@ export default withMermaid(
             items: [
               { text: '归档', link: '/stock-pool-dashboard/' },
               {
+                text: '2026-07-29',
+                link: '/stock-pool-dashboard/2026-07-29/',
+                target: '_self'
+              },
+              {
                 text: '2026-07-28',
                 link: '/stock-pool-dashboard/2026-07-28/',
                 target: '_self'
