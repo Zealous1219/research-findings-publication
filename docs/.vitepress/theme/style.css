@@ -3,6 +3,23 @@
   --vp-c-brand-2: #0a6f79;
   --vp-c-brand-3: #075f67;
   --vp-c-brand-soft: rgba(8, 126, 139, 0.14);
+  --market-rise: #c73532;
+  --market-rise-soft: rgba(199, 53, 50, 0.09);
+  --market-fall: #087a55;
+  --market-fall-soft: rgba(8, 122, 85, 0.09);
+  --market-flat: #707782;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.dark {
+  --market-rise: #ff746f;
+  --market-rise-soft: rgba(255, 116, 111, 0.12);
+  --market-fall: #48c895;
+  --market-fall-soft: rgba(72, 200, 149, 0.12);
+  --market-flat: #a8afb9;
 }
 
 .VPDoc .content-container {
@@ -34,6 +51,65 @@
   border-left-color: var(--vp-c-brand-1);
 }
 
+.market-report {
+  font-variant-numeric: tabular-nums;
+}
+
+.market-report .market-move,
+.market-report .market-metric {
+  font-weight: 650;
+}
+
+.market-report .market-rise {
+  color: var(--market-rise);
+}
+
+.market-report .market-fall {
+  color: var(--market-fall);
+}
+
+.market-report .market-flat {
+  color: var(--market-flat);
+}
+
+.market-report .market-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.market-report .market-table th {
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
+  font-size: 0.78rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.market-report .market-table td {
+  white-space: nowrap;
+}
+
+.market-report .market-table tbody tr {
+  transition: background-color 120ms ease;
+}
+
+.market-report .market-table tbody tr:hover {
+  background: var(--vp-c-bg-soft);
+}
+
+.market-report .market-table td.market-rise {
+  background: var(--market-rise-soft);
+}
+
+.market-report .market-table td.market-fall {
+  background: var(--market-fall-soft);
+}
+
+.market-report .ai-analysis-heading {
+  border-left: 3px solid var(--vp-c-brand-1);
+  padding-left: 12px;
+}
+
 @media (max-width: 1439px) {
   .VPDocAside {
     display: none;
@@ -47,5 +123,19 @@
 @media (max-width: 959px) {
   .VPDoc table {
     font-size: 0.82rem;
+  }
+
+  .market-report .market-table th:first-child,
+  .market-report .market-table td:first-child {
+    background: var(--vp-c-bg);
+    box-shadow: 1px 0 0 var(--vp-c-divider);
+    left: 0;
+    position: sticky;
+    z-index: 1;
+  }
+
+  .market-report .market-table th:first-child {
+    background: var(--vp-c-bg-soft);
+    z-index: 2;
   }
 }
