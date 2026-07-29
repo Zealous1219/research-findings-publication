@@ -39,19 +39,4 @@ if ($firstArchiveItem.Success) {
 $updatedArchive = $archiveHeader + $newLine + $newLine + ($reports -join $newLine) + $newLine
 [System.IO.File]::WriteAllText($archivePath, $updatedArchive, $utf8NoBom)
 
-$homePath = Join-Path $docsRoot 'index.md'
-$homeText = [System.IO.File]::ReadAllText($homePath, [System.Text.Encoding]::UTF8)
-$latestPattern = '(?m)^- \[\d{4}-\d{2}-\d{2} .+\]\(/a-share-briefings/\d{4}-\d{2}-\d{2}\)\s*$'
-$latestItem = [regex]::Match($homeText, $latestPattern)
-
-if (-not $latestItem.Success) {
-    throw 'Could not find the latest briefing link in docs/index.md.'
-}
-
-$updatedLatestItem = [regex]::Replace($latestItem.Value, '\d{4}-\d{2}-\d{2}', $date)
-$updatedHome = $homeText.Substring(0, $latestItem.Index) +
-    $updatedLatestItem +
-    $homeText.Substring($latestItem.Index + $latestItem.Length)
-[System.IO.File]::WriteAllText($homePath, $updatedHome, $utf8NoBom)
-
 Write-Output "Published source copied to $destination"

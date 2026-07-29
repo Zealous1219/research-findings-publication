@@ -1,15 +1,14 @@
-# Research Findings Publication
+---
+layout: page
+title: Research Findings
+description: 公开的研究记录、市场观察与可验证信息整理。
+sidebar: false
+aside: false
+outline: false
+---
 
-公开的研究记录与市场信息整理。
+<script setup>
+import ResearchHome from './.vitepress/theme/ResearchHome.vue'
+</script>
 
-## 最新内容
-
-- [2026-07-29 A 股收盘简报](/a-share-briefings/2026-07-29)
-- <a href="./stock-pool-dashboard/2026-07-29/" target="_self">2026-07-29 股票池盯盘看板</a>
-
-## 栏目
-
-- [A 股收盘简报](/a-share-briefings/)
-- [股票池盯盘看板](/stock-pool-dashboard/)
-
-所有内容均应保留来源、数据状态与适用范围。市场相关内容仅作信息整理与研究记录，不构成投资建议。
+<ResearchHome />
