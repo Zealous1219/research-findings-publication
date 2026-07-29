@@ -22,7 +22,7 @@ export default withMermaid(
   defineConfig({
     title: 'Research Findings Publication',
     description: 'Public research notes and market briefings.',
-    base: process.env.GITHUB_ACTIONS ? '/research-findings-publication/' : '/',
+    base: '/',
     cleanUrls: true,
     themeConfig: {
       nav: [
