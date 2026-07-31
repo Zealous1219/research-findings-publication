@@ -10,7 +10,7 @@ if (!latestAShareDate) {
 }
 
 const latestAShareHref = `/a-share-briefings/${latestAShareDate}`
-const latestDashboardDate = '2026-07-29'
+const latestDashboardDate = '2026-07-31'
 const latestDashboardHref = `/stock-pool-dashboard/${latestDashboardDate}/`
 </script>
 
