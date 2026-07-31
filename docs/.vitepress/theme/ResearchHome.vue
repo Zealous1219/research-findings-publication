@@ -16,96 +16,122 @@ const latestDashboardHref = `/stock-pool-dashboard/${latestDashboardDate}/`
 
 <template>
   <main class="research-home">
-    <section class="research-masthead" aria-labelledby="research-home-title">
-      <div class="research-masthead__bar">
-        <span class="research-wordmark"><strong>ZR</strong> RESEARCH</span>
-        <span class="research-edition">PUBLIC ARCHIVE · ASIA</span>
-      </div>
-      <div class="research-masthead__body">
-        <div class="research-intro">
-          <p class="research-eyebrow">INDEPENDENT RESEARCH DESK</p>
-          <h1 id="research-home-title">Research <span>Findings</span></h1>
-          <p class="research-deck">公开的研究记录、市场观察与可验证信息整理。</p>
+    <!-- Hero: black background, paper text, orange bottom rule -->
+    <section class="research-hero" aria-labelledby="research-home-title">
+      <div class="research-hero__inner">
+        <div class="research-hero__intro">
+          <div class="research-hero__kicker">INDEPENDENT RESEARCH · ASIA</div>
+          <h1 id="research-home-title">Research Findings</h1>
+          <p class="research-hero__deck">公开的研究记录、市场观察与可验证信息整理。事实、派生指标与判断分层呈现。</p>
         </div>
-        <div class="research-index" aria-label="当前栏目数量">
-          <span>ACTIVE SERIES</span>
+        <div class="research-hero__issue" aria-label="当前活跃栏目">
+          <span class="research-hero__issue-label">ACTIVE SERIES</span>
           <strong>02</strong>
-          <small>MARKET / EQUITY</small>
+          <span class="research-hero__issue-code">MARKET / EQUITY</span>
         </div>
       </div>
     </section>
 
+    <!-- Status strip -->
+    <div class="research-status" aria-label="研究发布状态">
+      <div class="research-status__item">
+        <span>数据状态</span>
+        <strong>完整 · 已结算</strong>
+      </div>
+      <div class="research-status__item">
+        <span>最近更新</span>
+        <strong class="zr-code">{{ latestAShareDate }}</strong>
+      </div>
+      <div class="research-status__item">
+        <span>主要来源</span>
+        <strong>Wind</strong>
+      </div>
+      <div class="research-status__item">
+        <span>适用范围</span>
+        <strong>研究记录</strong>
+      </div>
+    </div>
+
+    <!-- Latest -->
     <section class="research-section" aria-labelledby="latest-heading">
-      <div class="research-section__heading">
+      <div class="research-section__head">
         <div>
-          <span class="research-section__number">01 / LATEST</span>
+          <span class="research-section__meta">01 / LATEST</span>
           <h2 id="latest-heading">最新发布</h2>
         </div>
-        <p>按交易日更新的市场研究与股票池观察。</p>
+        <p class="research-section__desc">按交易日更新的市场研究与股票池观察。</p>
       </div>
 
-      <div class="research-latest-grid">
-        <a class="research-card research-card--lead" :href="latestAShareHref">
-          <span class="research-card__topline">
+      <div class="research-latest">
+        <a class="research-card" :href="latestAShareHref">
+          <div class="research-card__meta">
             <span>A 股收盘简报</span>
             <time :datetime="latestAShareDate">{{ latestAShareDate }}</time>
-          </span>
-          <span class="research-card__body">
-            <span class="research-tag">DAILY CLOSE</span>
+          </div>
+          <div class="research-card__body">
+            <div class="research-card__tag">DAILY CLOSE</div>
             <strong>当日市场收盘研究</strong>
-            <span>基于已结算、可验证的结构化市场数据，保留数据完整性与降级状态。</span>
-          </span>
-          <span class="research-card__action">查看简报 <b aria-hidden="true">→</b></span>
+            <span>指数、广度、行业、资金与条件式观察；保留数据完整性和分析范围。</span>
+          </div>
+          <div class="research-card__action">
+            <span>查看简报</span>
+            <b aria-hidden="true">→</b>
+          </div>
         </a>
 
-        <a class="research-card research-card--dashboard" :href="latestDashboardHref">
-          <span class="research-card__topline">
+        <a class="research-card research-card--dashboard" :href="latestDashboardHref" target="_self">
+          <div class="research-card__meta">
             <span>股票池盯盘看板</span>
             <time :datetime="latestDashboardDate">{{ latestDashboardDate }}</time>
-          </span>
-          <span class="research-card__body">
-            <span class="research-tag">MARKET SNAPSHOT</span>
+          </div>
+          <div class="research-card__body">
+            <div class="research-card__tag">MARKET SNAPSHOT</div>
             <strong>股票池收盘快照</strong>
-            <span>集中呈现股票池行情、板块表现与资金流向，便于快速回看市场结构。</span>
-          </span>
-          <span class="research-card__action">打开看板 <b aria-hidden="true">→</b></span>
+            <span>19 个板块、138 只唯一股票；官方指数与股票池统计口径分别标注。</span>
+          </div>
+          <div class="research-card__action">
+            <span>打开看板</span>
+            <b aria-hidden="true">→</b>
+          </div>
         </a>
       </div>
     </section>
 
-    <section class="research-section research-section--collections" aria-labelledby="collections-heading">
-      <div class="research-section__heading">
+    <!-- Collections -->
+    <section class="research-section" aria-labelledby="collections-heading">
+      <div class="research-section__head">
         <div>
-          <span class="research-section__number">02 / COLLECTIONS</span>
+          <span class="research-section__meta">02 / COLLECTIONS</span>
           <h2 id="collections-heading">研究栏目</h2>
         </div>
-        <p>每个栏目独立归档，保留来源、日期与适用范围。</p>
+        <p class="research-section__desc">每个栏目独立归档，保留来源、日期与适用范围。</p>
       </div>
 
-      <div class="research-collection-grid">
+      <div class="research-collections">
         <a class="research-collection" href="/a-share-briefings/">
-          <span class="research-collection__index">01</span>
+          <span class="research-collection__mark" aria-hidden="true"></span>
           <span class="research-collection__content">
             <strong>A 股收盘简报</strong>
-            <span>交易日市场数据、盘面结论、主线轮动与次日观察。</span>
+            <span>长文研究 · 13 节结构 · 事实与判断分层</span>
           </span>
-          <span class="research-collection__meta">DAILY · ARCHIVE <b aria-hidden="true">→</b></span>
+          <span class="research-collection__meta">DAILY · ARCHIVE →</span>
         </a>
 
-        <a class="research-collection" href="/stock-pool-dashboard/">
-          <span class="research-collection__index">02</span>
+        <a class="research-collection research-collection--dashboard" href="/stock-pool-dashboard/">
+          <span class="research-collection__mark" aria-hidden="true"></span>
           <span class="research-collection__content">
             <strong>股票池盯盘看板</strong>
-            <span>股票池行情、行业分组、涨跌结构与资金流向快照。</span>
+            <span>高密度数据 · 来源与覆盖率 · 完整明细</span>
           </span>
-          <span class="research-collection__meta">SNAPSHOT · ARCHIVE <b aria-hidden="true">→</b></span>
+          <span class="research-collection__meta">SNAPSHOT · ARCHIVE →</span>
         </a>
       </div>
     </section>
 
+    <!-- Standard / Method entry -->
     <section class="research-standard" aria-labelledby="standard-heading">
       <div class="research-standard__intro">
-        <span class="research-section__number">03 / STANDARD</span>
+        <div class="research-standard__kicker">03 / STANDARD</div>
         <h2 id="standard-heading">研究记录的基本边界</h2>
       </div>
       <div class="research-standard__items">

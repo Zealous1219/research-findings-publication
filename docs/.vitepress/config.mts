@@ -22,6 +22,7 @@ export default withMermaid(
   defineConfig({
     title: 'Research Findings Publication',
     description: 'Public research notes and market briefings.',
+    lang: 'zh-CN',
     base: '/',
     cleanUrls: true,
     themeConfig: {

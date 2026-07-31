@@ -1,7 +1,14 @@
+---
+title: A 股收盘简报
+description: 按交易日归档的市场收盘简报。
+pageClass: zr-archive-page zr-briefing-archive
+---
+
 # A 股收盘简报
 
 按交易日归档的市场信息整理。报告以生成时的数据状态为准。
 
+- [2026-07-31](/a-share-briefings/2026-07-31)
 - [2026-07-30](/a-share-briefings/2026-07-30)
 - [2026-07-29](/a-share-briefings/2026-07-29)
 - [2026-07-28](/a-share-briefings/2026-07-28)
