@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
-import { readdirSync } from 'node:fs'
+import { readdirSync, existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -17,6 +17,24 @@ const briefingSidebarItems = readdirSync(briefingDirectory)
     const date = file.replace(/\.md$/, '')
     return { text: date, link: `/a-share-briefings/${date}` }
   })
+
+const dashboardDirectory = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '..',
+  'public',
+  'stock-pool-dashboard'
+)
+
+const dashboardSidebarItems = existsSync(dashboardDirectory)
+  ? readdirSync(dashboardDirectory)
+      .filter((dir) => /^\d{4}-\d{2}-\d{2}$/.test(dir))
+      .sort((left, right) => right.localeCompare(left))
+      .map((dir) => ({
+        text: dir,
+        link: `/stock-pool-dashboard/${dir}/`,
+        target: '_self'
+      }))
+  : []
 
 export default withMermaid(
   defineConfig({
@@ -47,26 +65,7 @@ export default withMermaid(
             text: '股票池盯盘看板',
             items: [
               { text: '归档', link: '/stock-pool-dashboard/' },
-              {
-                text: '2026-07-31',
-                link: '/stock-pool-dashboard/2026-07-31/',
-                target: '_self'
-              },
-              {
-                text: '2026-07-30',
-                link: '/stock-pool-dashboard/2026-07-30/',
-                target: '_self'
-              },
-              {
-                text: '2026-07-29',
-                link: '/stock-pool-dashboard/2026-07-29/',
-                target: '_self'
-              },
-              {
-                text: '2026-07-28',
-                link: '/stock-pool-dashboard/2026-07-28/',
-                target: '_self'
-              }
+              ...dashboardSidebarItems
             ]
           }
         ]

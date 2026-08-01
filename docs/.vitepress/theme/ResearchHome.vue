@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { dashboardDates } from '../dashboard-dates'
+
 const briefingModules = import.meta.glob('../../a-share-briefings/*.md')
 const latestAShareDate = Object.keys(briefingModules)
   .map((path) => path.match(/(\d{4}-\d{2}-\d{2})\.md$/)?.[1])
@@ -10,7 +12,12 @@ if (!latestAShareDate) {
 }
 
 const latestAShareHref = `/a-share-briefings/${latestAShareDate}`
-const latestDashboardDate = '2026-07-31'
+const latestDashboardDate = dashboardDates
+  .slice()
+  .sort((left, right) => right.localeCompare(left))[0]
+if (!latestDashboardDate) {
+  throw new Error('No dated stock-pool dashboard was found.')
+}
 const latestDashboardHref = `/stock-pool-dashboard/${latestDashboardDate}/`
 </script>
 
