@@ -3,16 +3,23 @@
   Publish a validated stock-pool dashboard HTML to the publication repository.
 
 .DESCRIPTION
-  Transforms an upstream "自选股盯盘看板-YYYY-MM-DD.html" into the published
-  schema at docs/public/stock-pool-dashboard/YYYY-MM-DD/index.html, refreshes
-  date navigation on every existing page, rebuilds the archive index, and
+  Transforms an upstream dashboard HTML into the published schema at
+  docs/public/stock-pool-dashboard/YYYY-MM-DD/index.html, refreshes date
+  navigation on every existing page, rebuilds the archive index, and
   regenerates the build-time dashboard-dates module.
+
+  Accepts two upstream filename formats:
+    - Current (preferred): 股票池盯盘看板-YYYY-MM-DD.html
+    - Legacy (historical): 自选股盯盘看板-YYYY-MM-DD.html
+  Both are transformed so the published output always shows "股票池盯盘看板".
 
   All operations are idempotent. Re-running with the same source produces no
   diff. The script never executes git add/commit/push or network operations.
 
 .PARAMETER SourcePath
-  Absolute path to the upstream HTML file. Must match 自选股盯盘看板-YYYY-MM-DD.html.
+  Absolute path to the upstream HTML file. Must match either
+  股票池盯盘看板-YYYY-MM-DD.html (current) or
+  自选股盯盘看板-YYYY-MM-DD.html (legacy).
 
 .PARAMETER DryRun
   Compute and report planned changes without writing any files.
@@ -23,6 +30,9 @@
 
 .OUTPUTS
   A JSON object with status, date, target, changedFiles, revised, dryRun, allDates.
+
+.EXAMPLE
+  .\publish-stock-dashboard.ps1 -SourcePath "G:\dev-doodles\stock-pools-monitor\outputs\股票池盯盘看板-2026-07-31.html"
 
 .EXAMPLE
   .\publish-stock-dashboard.ps1 -SourcePath "G:\dev-doodles\stock-pools-monitor\outputs\自选股盯盘看板-2026-07-31.html"
@@ -207,8 +217,8 @@ if (-not (Test-Path -LiteralPath $SourcePath -PathType Leaf)) {
 }
 
 $filename = [System.IO.Path]::GetFileName($SourcePath)
-if ($filename -notmatch '^自选股盯盘看板-(\d{4}-\d{2}-\d{2})\.html$') {
-    Fail "Filename must match '自选股盯盘看板-YYYY-MM-DD.html', got: $filename"
+if ($filename -notmatch '^(?:自选股盯盘看板|股票池盯盘看板)-(\d{4}-\d{2}-\d{2})\.html$') {
+    Fail "Filename must match '股票池盯盘看板-YYYY-MM-DD.html' (legacy: '自选股盯盘看板-YYYY-MM-DD.html'), got: $filename"
 }
 $date = $Matches[1]
 
