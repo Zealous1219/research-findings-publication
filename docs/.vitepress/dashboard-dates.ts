@@ -1,4 +1,5 @@
 export const dashboardDates: string[] = [
+  '2026-08-25',
   '2026-08-24',
   '2026-08-21',
   '2026-08-19',
