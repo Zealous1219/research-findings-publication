@@ -8,6 +8,7 @@ pageClass: zr-archive-page zr-briefing-archive
 
 按交易日归档的市场信息整理。报告以生成时的数据状态为准。
 
+- [2026-08-25](/a-share-briefings/2026-08-25)
 - [2026-08-24](/a-share-briefings/2026-08-24)
 - [2026-08-21](/a-share-briefings/2026-08-21)
 - [2026-08-20](/a-share-briefings/2026-08-20)
