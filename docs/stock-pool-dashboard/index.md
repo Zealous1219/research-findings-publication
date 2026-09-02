@@ -7,6 +7,7 @@ pageClass: zr-archive-page zr-dashboard-archive
 # 股票池盯盘看板
 
 按交易日归档的股票池行情与板块表现快照。
+- <a href="./2026-09-02/" target="_self">2026-09-02</a>
 - <a href="./2026-08-27/" target="_self">2026-08-27</a>
 - <a href="./2026-08-26/" target="_self">2026-08-26</a>
 - <a href="./2026-08-25/" target="_self">2026-08-25</a>
